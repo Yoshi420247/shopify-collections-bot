@@ -8,6 +8,11 @@ on:
         required: true
         default: 'false'
         type: boolean
+      seo_safe:
+        description: 'Use SEO-safe sync with URL redirects (recommended)'
+        required: false
+        default: 'true'
+        type: boolean
 
 jobs:
   sync:
@@ -31,8 +36,15 @@ jobs:
           SHOPIFY_ADMIN_API_TOKEN: ${{ secrets.SHOPIFY_ADMIN_API_TOKEN }}
         run: npm run wyn:sync-menus
 
-      - name: Sync Menus (Apply)
-        if: ${{ inputs.apply == true }}
+      - name: Sync Menus (Apply with SEO-Safe)
+        if: ${{ inputs.apply == true && inputs.seo_safe == true }}
+        env:
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_ADMIN_API_TOKEN: ${{ secrets.SHOPIFY_ADMIN_API_TOKEN }}
+        run: npm run wyn:sync-menus -- --apply --seo-safe
+
+      - name: Sync Menus (Apply without SEO-Safe)
+        if: ${{ inputs.apply == true && inputs.seo_safe == false }}
         env:
           SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
           SHOPIFY_ADMIN_API_TOKEN: ${{ secrets.SHOPIFY_ADMIN_API_TOKEN }}

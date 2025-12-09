@@ -3,9 +3,10 @@
  * Syncs menu configuration to Shopify Admin
  */
 
-import type { MenusConfig, MenuConfigEntry, MenuSyncPlan, CollectionsConfig } from '../../types.js';
+import type { MenusConfig, MenuConfigEntry, MenuSyncPlan, CollectionsConfig, ShopifyMenuItem } from '../../types.js';
 import {
   getMenuByHandle,
+  getMenus,
   createMenu,
   updateMenu,
   countShopifyMenuItems,
@@ -13,6 +14,13 @@ import {
 } from '../../shopify/menusApi.js';
 import { getCollectionByHandle } from '../../shopify/collectionsApi.js';
 import { collectTargetHandles, countMenuItems, printMenuStructure } from '../../config/menusConfig.js';
+import { upsertUrlRedirect, getUrlRedirects } from '../../shopify/redirectsApi.js';
+import {
+  generateMenuReplacementPlan,
+  findOrphanedMenus,
+  findEmptyCollectionsInMenus,
+  auditMenu
+} from './menuCleanup.js';
 
 /**
  * Resolve collection handles to Shopify resource IDs
@@ -378,6 +386,338 @@ export async function compareMenuStructures(
     lines.push(printMenuStructure(menu));
     lines.push('');
   }
+
+  return lines.join('\n');
+}
+
+// ===========================================
+// ENHANCED SYNC WITH REDIRECTS (SEO-SAFE)
+// ===========================================
+
+/**
+ * Extract all collection URLs from current menu items
+ */
+function extractCollectionUrls(items: ShopifyMenuItem[]): Map<string, string> {
+  const urls = new Map<string, string>();
+
+  function traverse(items: ShopifyMenuItem[]) {
+    for (const item of items) {
+      if (item.type === 'COLLECTION' && item.url) {
+        const handleMatch = item.url.match(/\/collections\/([^/?]+)/);
+        if (handleMatch) {
+          urls.set(handleMatch[1], item.title);
+        }
+      }
+      if (item.items && item.items.length > 0) {
+        traverse(item.items);
+      }
+    }
+  }
+
+  traverse(items);
+  return urls;
+}
+
+/**
+ * Extract collection handles from config items
+ */
+function extractConfigHandles(items: MenuConfigEntry['items']): Set<string> {
+  const handles = new Set<string>();
+
+  function traverse(items: MenuConfigEntry['items']) {
+    for (const item of items) {
+      if (item.type === 'COLLECTION' && item.target_collection_handle) {
+        handles.add(item.target_collection_handle);
+      }
+      if (item.children && item.children.length > 0) {
+        traverse(item.children);
+      }
+    }
+  }
+
+  traverse(items);
+  return handles;
+}
+
+/**
+ * Plan and execute SEO-safe menu replacement with automatic redirects
+ */
+export async function executeSeoSafeMenuSync(
+  config: MenusConfig,
+  plans: MenuSyncPlan[],
+  collectionIdByHandle: Map<string, string>,
+  options: {
+    createRedirects: boolean;
+    defaultRedirectTarget: string;
+  } = {
+    createRedirects: true,
+    defaultRedirectTarget: '/collections/shop-all-what-you-need'
+  }
+): Promise<{
+  created: string[];
+  updated: string[];
+  skipped: string[];
+  errors: Array<{ handle: string; error: string }>;
+  redirectsCreated: Array<{ path: string; target: string }>;
+  redirectErrors: Array<{ path: string; error: string }>;
+}> {
+  const results = {
+    created: [] as string[],
+    updated: [] as string[],
+    skipped: [] as string[],
+    errors: [] as Array<{ handle: string; error: string }>,
+    redirectsCreated: [] as Array<{ path: string; target: string }>,
+    redirectErrors: [] as Array<{ path: string; error: string }>
+  };
+
+  for (const plan of plans) {
+    const menuConfig = config.menus.find(m => m.handle === plan.handle);
+    if (!menuConfig) {
+      results.errors.push({ handle: plan.handle, error: 'Config not found' });
+      continue;
+    }
+
+    // Check if blocked
+    if (plan.changes?.some(c => c.startsWith('BLOCKED'))) {
+      results.errors.push({
+        handle: plan.handle,
+        error: plan.changes.find(c => c.startsWith('BLOCKED')) || 'Blocked'
+      });
+      continue;
+    }
+
+    try {
+      // For updates, first analyze what collection links are being removed
+      if (plan.action === 'update' && plan.existingId && options.createRedirects) {
+        const existingMenu = await getMenuByHandle(plan.handle);
+        if (existingMenu) {
+          const currentUrls = extractCollectionUrls(existingMenu.items);
+          const newHandles = extractConfigHandles(menuConfig.items);
+
+          // Find collections that exist in current menu but not in new config
+          for (const [handle, title] of currentUrls) {
+            if (!newHandles.has(handle)) {
+              // This collection link is being removed - create redirect
+              const path = `/collections/${handle}`;
+              const target = options.defaultRedirectTarget;
+
+              console.log(`  Creating redirect: ${path} -> ${target} (removing "${title}")`);
+
+              try {
+                const { action } = await upsertUrlRedirect(path, target);
+                if (action !== 'unchanged') {
+                  results.redirectsCreated.push({ path, target });
+                }
+              } catch (error) {
+                results.redirectErrors.push({
+                  path,
+                  error: error instanceof Error ? error.message : String(error)
+                });
+              }
+            }
+          }
+        }
+      }
+
+      // Now perform the menu operation
+      switch (plan.action) {
+        case 'create': {
+          console.log(`Creating menu: ${plan.handle}`);
+          await createMenu(
+            menuConfig.handle,
+            menuConfig.title,
+            menuConfig.items,
+            collectionIdByHandle
+          );
+          results.created.push(plan.handle);
+          break;
+        }
+
+        case 'update': {
+          if (!plan.existingId) {
+            results.errors.push({ handle: plan.handle, error: 'No existing ID for update' });
+            continue;
+          }
+          console.log(`Updating menu: ${plan.handle}`);
+          await updateMenu(
+            plan.existingId,
+            menuConfig.title,
+            menuConfig.items,
+            collectionIdByHandle
+          );
+          results.updated.push(plan.handle);
+          break;
+        }
+
+        case 'noop':
+          results.skipped.push(plan.handle);
+          break;
+      }
+    } catch (error) {
+      results.errors.push({
+        handle: plan.handle,
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Comprehensive menu audit report
+ */
+export async function generateMenuAuditReport(
+  config: MenusConfig
+): Promise<string> {
+  const lines: string[] = [];
+
+  lines.push('='.repeat(70));
+  lines.push('COMPREHENSIVE MENU AUDIT REPORT');
+  lines.push('='.repeat(70));
+  lines.push('');
+
+  // 1. Check for orphaned menus
+  lines.push('1. ORPHANED MENUS');
+  lines.push('-'.repeat(50));
+  const configuredHandles = config.menus.map(m => m.handle);
+  const orphaned = await findOrphanedMenus(configuredHandles);
+
+  if (orphaned.length === 0) {
+    lines.push('  No orphaned menus found.');
+  } else {
+    for (const menu of orphaned) {
+      lines.push(`  - ${menu.handle} (${menu.title})`);
+      lines.push(`    Items: ${menu.itemsCount}, Reason: ${menu.reason}`);
+    }
+  }
+  lines.push('');
+
+  // 2. Check for empty collections in menus
+  lines.push('2. EMPTY COLLECTIONS IN MENUS');
+  lines.push('-'.repeat(50));
+  const emptyCollections = await findEmptyCollectionsInMenus();
+
+  if (emptyCollections.length === 0) {
+    lines.push('  No empty collections found in any menu.');
+  } else {
+    for (const menuResult of emptyCollections) {
+      lines.push(`  Menu: ${menuResult.menu}`);
+      for (const item of menuResult.items) {
+        lines.push(`    - "${item.title}" -> ${item.collectionHandle} (0 products)`);
+      }
+    }
+  }
+  lines.push('');
+
+  // 3. Audit each configured menu
+  lines.push('3. MENU HEALTH CHECKS');
+  lines.push('-'.repeat(50));
+  for (const menu of config.menus) {
+    const audit = await auditMenu(menu.handle);
+    if (!audit) {
+      lines.push(`  ${menu.handle}: NOT FOUND IN SHOPIFY`);
+      continue;
+    }
+
+    const errorCount = audit.issues.filter(i => i.severity === 'error').length;
+    const warningCount = audit.issues.filter(i => i.severity === 'warning').length;
+
+    lines.push(`  ${menu.handle}: ${audit.menu.itemsCount} items, ${errorCount} errors, ${warningCount} warnings`);
+
+    if (audit.issues.length > 0) {
+      for (const issue of audit.issues) {
+        const icon = issue.severity === 'error' ? '!' : issue.severity === 'warning' ? '?' : 'i';
+        lines.push(`    [${icon}] ${issue.message}`);
+      }
+    }
+  }
+  lines.push('');
+
+  // 4. Existing redirects summary
+  lines.push('4. EXISTING URL REDIRECTS (Collections)');
+  lines.push('-'.repeat(50));
+  try {
+    const redirects = await getUrlRedirects(100, 'path:/collections/*');
+    if (redirects.length === 0) {
+      lines.push('  No collection redirects found.');
+    } else {
+      lines.push(`  Found ${redirects.length} collection redirects:`);
+      for (const redirect of redirects.slice(0, 20)) {
+        lines.push(`    ${redirect.path} -> ${redirect.target}`);
+      }
+      if (redirects.length > 20) {
+        lines.push(`    ... and ${redirects.length - 20} more`);
+      }
+    }
+  } catch {
+    lines.push('  Unable to fetch redirects (may need read_url_redirects scope)');
+  }
+  lines.push('');
+
+  lines.push('='.repeat(70));
+  lines.push('END OF AUDIT REPORT');
+  lines.push('='.repeat(70));
+
+  return lines.join('\n');
+}
+
+/**
+ * Format enhanced sync results report
+ */
+export function formatEnhancedSyncResultsReport(results: {
+  created: string[];
+  updated: string[];
+  skipped: string[];
+  errors: Array<{ handle: string; error: string }>;
+  redirectsCreated: Array<{ path: string; target: string }>;
+  redirectErrors: Array<{ path: string; error: string }>;
+}): string {
+  const lines: string[] = [];
+
+  lines.push('='.repeat(70));
+  lines.push('SEO-SAFE MENUS SYNC RESULTS');
+  lines.push('='.repeat(70));
+  lines.push('');
+
+  // Menu operations
+  lines.push('MENU OPERATIONS:');
+  lines.push(`  Created: ${results.created.length}`);
+  for (const handle of results.created) {
+    lines.push(`    + ${handle}`);
+  }
+
+  lines.push(`  Updated: ${results.updated.length}`);
+  for (const handle of results.updated) {
+    lines.push(`    ~ ${handle}`);
+  }
+
+  lines.push(`  Skipped: ${results.skipped.length}`);
+
+  if (results.errors.length > 0) {
+    lines.push(`  Errors: ${results.errors.length}`);
+    for (const { handle, error } of results.errors) {
+      lines.push(`    ! ${handle}: ${error}`);
+    }
+  }
+  lines.push('');
+
+  // Redirect operations
+  lines.push('URL REDIRECTS (SEO Preservation):');
+  lines.push(`  Created: ${results.redirectsCreated.length}`);
+  for (const { path, target } of results.redirectsCreated) {
+    lines.push(`    + ${path} -> ${target}`);
+  }
+
+  if (results.redirectErrors.length > 0) {
+    lines.push(`  Errors: ${results.redirectErrors.length}`);
+    for (const { path, error } of results.redirectErrors) {
+      lines.push(`    ! ${path}: ${error}`);
+    }
+  }
+
+  lines.push('');
+  lines.push('='.repeat(70));
 
   return lines.join('\n');
 }

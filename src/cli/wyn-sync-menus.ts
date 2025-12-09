@@ -10,8 +10,10 @@ import { loadMenusConfig, printMenuStructure, getMenuByHandle } from '../config/
 import {
   planMenusSync,
   executeMenusSync,
+  executeSeoSafeMenuSync,
   formatMenuSyncPlanReport,
   formatMenuSyncResultsReport,
+  formatEnhancedSyncResultsReport,
   compareMenuStructures
 } from '../wyn/menus/menusSync.js';
 import { testConnection, validateEnvironment } from '../shopify/graphqlClient.js';
@@ -23,6 +25,8 @@ program
   .option('--compare', 'Show existing vs desired menu structure')
   .option('--skip-api', 'Skip Shopify API calls (config validation only)')
   .option('--menu <handle>', 'Only sync a specific menu by handle')
+  .option('--seo-safe', 'Use SEO-safe sync with automatic URL redirects (recommended)')
+  .option('--redirect-target <path>', 'Default redirect target for removed items', '/collections/shop-all-what-you-need')
   .parse(process.argv);
 
 const options = program.opts();
@@ -103,20 +107,43 @@ async function main(): Promise<void> {
     if (options.apply) {
       console.log('');
       console.log('Executing sync (--apply mode)...');
-      console.log('');
 
-      const results = await executeMenusSync(menusConfig, plans, collectionIdByHandle);
+      if (options.seoSafe) {
+        console.log('Using SEO-safe sync with automatic URL redirects...');
+        console.log('');
 
-      const resultsReport = formatMenuSyncResultsReport(results);
-      console.log(resultsReport);
+        const results = await executeSeoSafeMenuSync(
+          menusConfig,
+          plans,
+          collectionIdByHandle,
+          {
+            createRedirects: true,
+            defaultRedirectTarget: options.redirectTarget || '/collections/shop-all-what-you-need'
+          }
+        );
 
-      if (results.errors.length > 0) {
-        process.exit(1);
+        const resultsReport = formatEnhancedSyncResultsReport(results);
+        console.log(resultsReport);
+
+        if (results.errors.length > 0) {
+          process.exit(1);
+        }
+      } else {
+        console.log('');
+        const results = await executeMenusSync(menusConfig, plans, collectionIdByHandle);
+
+        const resultsReport = formatMenuSyncResultsReport(results);
+        console.log(resultsReport);
+
+        if (results.errors.length > 0) {
+          process.exit(1);
+        }
       }
     } else {
       console.log('');
       console.log('DRY RUN - No changes made.');
       console.log('Run with --apply to execute these changes.');
+      console.log('Run with --apply --seo-safe for SEO-preserving sync with URL redirects.');
     }
 
     process.exit(0);
