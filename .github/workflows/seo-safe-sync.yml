@@ -3,6 +3,14 @@ name: SEO-Safe Full Sync
 on:
   workflow_dispatch:
     inputs:
+      config:
+        description: 'Configuration to use'
+        required: true
+        default: 'oilslick'
+        type: choice
+        options:
+          - oilslick
+          - wyn
       apply:
         description: 'Apply changes (false = dry run)'
         required: true
@@ -49,7 +57,7 @@ jobs:
           SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
           SHOPIFY_ADMIN_API_TOKEN: ${{ secrets.SHOPIFY_ADMIN_API_TOKEN }}
         run: |
-          ARGS="--verbose"
+          ARGS="--config ${{ inputs.config }} --verbose"
 
           if [ "${{ inputs.apply }}" = "true" ]; then
             ARGS="$ARGS --apply"
@@ -84,6 +92,7 @@ jobs:
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "- **Config:** ${{ inputs.config }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Apply changes:** ${{ inputs.apply }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Publish to Online Store:** ${{ inputs.publish }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Create URL redirects:** ${{ inputs.create_redirects }}" >> $GITHUB_STEP_SUMMARY
