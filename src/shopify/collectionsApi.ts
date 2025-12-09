@@ -77,7 +77,6 @@ const CREATE_COLLECTION = `
       userErrors {
         field
         message
-        code
       }
     }
   }
@@ -104,7 +103,6 @@ const UPDATE_COLLECTION = `
       userErrors {
         field
         message
-        code
       }
     }
   }

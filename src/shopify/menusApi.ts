@@ -73,7 +73,6 @@ const CREATE_MENU = `
       userErrors {
         field
         message
-        code
       }
     }
   }
@@ -96,7 +95,6 @@ const UPDATE_MENU = `
       userErrors {
         field
         message
-        code
       }
     }
   }
