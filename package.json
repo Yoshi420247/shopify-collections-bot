@@ -10,9 +10,9 @@
   },
   "scripts": {
     "build": "tsc",
-    "wyn:tag-audit": "npx ts-node --esm src/cli/wyn-tag-audit.ts",
-    "wyn:sync-collections": "npx ts-node --esm src/cli/wyn-sync-collections.ts",
-    "wyn:sync-menus": "npx ts-node --esm src/cli/wyn-sync-menus.ts",
+    "wyn:tag-audit": "npx tsx src/cli/wyn-tag-audit.ts",
+    "wyn:sync-collections": "npx tsx src/cli/wyn-sync-collections.ts",
+    "wyn:sync-menus": "npx tsx src/cli/wyn-sync-menus.ts",
     "test": "jest"
   },
   "repository": {
@@ -38,7 +38,7 @@
     "csv-parse": "^6.1.0",
     "dotenv": "^17.2.3",
     "js-yaml": "^4.1.1",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.19.0",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
