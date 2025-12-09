@@ -1,0 +1,56 @@
+name: Full Sync (Collections + Menus)
+
+on:
+  workflow_dispatch:  # Manual trigger from GitHub UI
+    inputs:
+      apply:
+        description: 'Apply changes to Shopify (otherwise dry-run)'
+        required: true
+        default: 'false'
+        type: boolean
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Tag Audit
+        run: npm run wyn:tag-audit || true
+
+      - name: Sync Collections (Dry Run)
+        if: ${{ inputs.apply == false }}
+        env:
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_ADMIN_API_TOKEN: ${{ secrets.SHOPIFY_ADMIN_API_TOKEN }}
+        run: npm run wyn:sync-collections
+
+      - name: Sync Collections (Apply)
+        if: ${{ inputs.apply == true }}
+        env:
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_ADMIN_API_TOKEN: ${{ secrets.SHOPIFY_ADMIN_API_TOKEN }}
+        run: npm run wyn:sync-collections -- --apply --publish
+
+      - name: Sync Menus (Dry Run)
+        if: ${{ inputs.apply == false }}
+        env:
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_ADMIN_API_TOKEN: ${{ secrets.SHOPIFY_ADMIN_API_TOKEN }}
+        run: npm run wyn:sync-menus
+
+      - name: Sync Menus (Apply)
+        if: ${{ inputs.apply == true }}
+        env:
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_ADMIN_API_TOKEN: ${{ secrets.SHOPIFY_ADMIN_API_TOKEN }}
+        run: npm run wyn:sync-menus -- --apply
