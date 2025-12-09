@@ -14,7 +14,7 @@
 import { program } from 'commander';
 import chalk from 'chalk';
 import { loadMenusConfig } from '../config/menusConfig.js';
-import { loadCollectionsConfig } from '../config/collectionsConfig.js';
+import { loadCollectionsConfig, type ConfigName } from '../config/collectionsConfig.js';
 import { validateEnvironment, testConnection } from '../shopify/graphqlClient.js';
 import { generateMenuAuditReport } from '../wyn/menus/menusSync.js';
 import { auditCollectionsSeo } from '../shopify/seoApi.js';
@@ -22,7 +22,8 @@ import { getUrlRedirects, consolidateRedirectChains } from '../shopify/redirects
 
 program
   .name('wyn-menu-audit')
-  .description('Comprehensive audit of WYN menus, collections, and SEO')
+  .description('Comprehensive audit of menus, collections, and SEO')
+  .option('--config <name>', 'Config name: wyn or oilslick (default: wyn)', 'wyn')
   .option('--seo', 'Include detailed SEO audit')
   .option('--redirects', 'Audit and optimize URL redirects')
   .option('--fix-chains', 'Automatically consolidate redirect chains')
@@ -32,12 +33,14 @@ program
 const options = program.opts();
 
 async function main() {
-  console.log(chalk.bold('\n=== WYN Menu & SEO Audit ===\n'));
+  const configName = options.config as ConfigName;
+
+  console.log(chalk.bold(`\n=== Menu & SEO Audit (${configName} config) ===\n`));
 
   // Load configs
-  console.log('Loading configurations...');
-  const collectionsConfig = loadCollectionsConfig();
-  const menusConfig = loadMenusConfig(collectionsConfig);
+  console.log(`Loading ${configName} configurations...`);
+  const collectionsConfig = loadCollectionsConfig(configName);
+  const menusConfig = loadMenusConfig(collectionsConfig, configName);
   console.log(chalk.green(`  Loaded ${menusConfig.menus.length} menus, ${collectionsConfig.collections.length} collections`));
 
   // Validate environment

@@ -5,7 +5,7 @@
  */
 
 import { program } from 'commander';
-import { loadCollectionsConfig } from '../config/collectionsConfig.js';
+import { loadCollectionsConfig, type ConfigName } from '../config/collectionsConfig.js';
 import {
   planCollectionsSync,
   executeCollectionsSync,
@@ -18,7 +18,8 @@ import { testConnection, validateEnvironment } from '../shopify/graphqlClient.js
 
 program
   .name('wyn-sync-collections')
-  .description('Sync What You Need collections to Shopify')
+  .description('Sync collections to Shopify')
+  .option('--config <name>', 'Config name: wyn or oilslick (default: wyn)', 'wyn')
   .option('--apply', 'Actually apply changes (default is dry-run)')
   .option('--publish', 'Publish newly created collections to Online Store')
   .option('--compare-counts', 'Compare expected vs actual product counts')
@@ -28,14 +29,16 @@ program
 const options = program.opts();
 
 async function main(): Promise<void> {
-  console.log('WYN Collections Sync');
+  const configName = options.config as ConfigName;
+
+  console.log(`Collections Sync (${configName} config)`);
   console.log('='.repeat(60));
   console.log('');
 
   try {
     // Load and validate config
-    console.log('Loading collections configuration...');
-    const config = loadCollectionsConfig();
+    console.log(`Loading ${configName} collections configuration...`);
+    const config = loadCollectionsConfig(configName);
     console.log(`Loaded ${config.collections.length} collection definitions`);
     console.log('');
 

@@ -1,14 +1,19 @@
-# What You Need - Shopify Collections & Menus Automation
+# Shopify Collections & Menus Automation
 
-A code-driven system that keeps Shopify **smart collections** and **navigation menus** in sync with the What You Need product tagging spec.
+A code-driven system that keeps Shopify **smart collections** and **navigation menus** in sync with YAML configuration files.
 
 ## Overview
 
-This toolkit provides:
+This toolkit supports multiple store configurations:
+- **What You Need (WYN)** - Smokeshop products (bongs, rigs, pipes, accessories)
+- **Oil Slick** - Extraction supplies, packaging, and headshop products
+
+### Key Features:
 
 1. **Tag Audit CLI** - Validates product tags in CSV against the tagging spec
 2. **Collections Sync CLI** - Creates/updates Shopify smart collections based on YAML config
 3. **Menus Sync CLI** - Creates/updates Shopify navigation menus based on YAML config
+4. **SEO-Safe Sync CLI** - Unified sync with automatic URL redirect preservation
 
 All operations are **safe by default** (dry-run mode). You must explicitly pass `--apply` to make changes.
 
@@ -40,6 +45,7 @@ cp .env.example .env
 | `SHOPIFY_ADMIN_API_TOKEN` | Yes | Admin API access token |
 | `SHOPIFY_API_VERSION` | No | API version (default: `2025-01`) |
 | `SHOPIFY_ONLINE_STORE_PUBLICATION_ID` | No | Publication ID (fetched dynamically if not set) |
+| `CONFIG_NAME` | No | Default config to use: `wyn` or `oilslick` (default: `wyn`) |
 
 ### Getting an Admin API Token
 
@@ -53,6 +59,22 @@ cp .env.example .env
 4. Install the app and copy the Admin API access token
 
 ## Usage
+
+### Choosing a Configuration
+
+All CLI commands support the `--config` flag to choose which configuration to use:
+
+```bash
+# Use What You Need config (default)
+npm run wyn:sync-collections
+
+# Use Oil Slick config
+npm run wyn:sync-collections -- --config oilslick
+```
+
+Available configs:
+- `wyn` - What You Need smokeshop products (default)
+- `oilslick` - Oil Slick extraction supplies + headshop products
 
 ### 1. Validate Tags
 
@@ -85,6 +107,9 @@ npm run wyn:sync-collections -- --compare-counts
 
 # Validate config only (no API calls)
 npm run wyn:sync-collections -- --skip-api
+
+# Use Oil Slick config
+npm run wyn:sync-collections -- --config oilslick --apply
 ```
 
 ### 3. Sync Menus
@@ -103,28 +128,50 @@ npm run wyn:sync-menus -- --compare
 
 # Validate config only (no API calls)
 npm run wyn:sync-menus -- --skip-api
+
+# Use Oil Slick config with SEO-safe sync
+npm run wyn:sync-menus -- --config oilslick --apply --seo-safe
 ```
 
-### Complete Workflow
+### 4. SEO-Safe Sync (Recommended)
+
+The unified SEO-safe sync handles both collections and menus with automatic URL redirect preservation:
 
 ```bash
-# 1. Validate tags against spec
-npm run wyn:tag-audit
+# Preview all changes
+npm run wyn:seo-safe-sync
 
-# 2. Preview collection changes
-npm run wyn:sync-collections
+# Apply all changes with redirects
+npm run wyn:seo-safe-sync -- --apply
 
-# 3. Apply collection changes
-npm run wyn:sync-collections -- --apply --publish
+# Oil Slick: Apply with publishing
+npm run wyn:seo-safe-sync -- --config oilslick --apply --publish
+```
 
-# 4. Preview menu changes
-npm run wyn:sync-menus
+### Complete Workflow for Oil Slick
 
-# 5. Apply menu changes
-npm run wyn:sync-menus -- --apply
+```bash
+# 1. Preview collection changes
+npm run wyn:sync-collections -- --config oilslick
+
+# 2. Apply collection changes
+npm run wyn:sync-collections -- --config oilslick --apply --publish
+
+# 3. Preview menu changes
+npm run wyn:sync-menus -- --config oilslick
+
+# 4. Apply menu changes with SEO preservation
+npm run wyn:sync-menus -- --config oilslick --apply --seo-safe
 ```
 
 ## Configuration Files
+
+### Available Configurations
+
+| Config | Collections File | Menus File | Description |
+|--------|-----------------|------------|-------------|
+| `wyn` | `wyn_collections.yml` | `wyn_menus.yml` | What You Need smokeshop products |
+| `oilslick` | `oilslick_collections.yml` | `oilslick_menus.yml` | Oil Slick extraction + headshop |
 
 ### `config/wyn_collections.yml`
 
@@ -185,8 +232,10 @@ menus:
 
 ```
 ├── config/
-│   ├── wyn_collections.yml    # All collection definitions
-│   └── wyn_menus.yml          # Menu structure
+│   ├── wyn_collections.yml       # What You Need collection definitions
+│   ├── wyn_menus.yml             # What You Need menu structure
+│   ├── oilslick_collections.yml  # Oil Slick collection definitions
+│   └── oilslick_menus.yml        # Oil Slick menu structure
 ├── data/
 │   └── WYN_PRODUCT_EXPORT_TAGGED.csv
 ├── docs/

@@ -12,7 +12,16 @@ import type { MenusConfig, MenuConfigEntry, MenuItemConfigEntry, CollectionsConf
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const PROJECT_ROOT = join(__dirname, '..', '..');
-const CONFIG_PATH = join(PROJECT_ROOT, 'config', 'wyn_menus.yml');
+
+// Valid config names (re-export for convenience)
+export type ConfigName = 'wyn' | 'oilslick';
+
+/**
+ * Get the config file path for a given config name
+ */
+function getConfigPath(configName: ConfigName): string {
+  return join(PROJECT_ROOT, 'config', `${configName}_menus.yml`);
+}
 
 /**
  * Recursively validate menu items and collect all target collection handles
@@ -115,13 +124,22 @@ function validateMenuEntry(
 /**
  * Load and validate the menus configuration
  * Requires CollectionsConfig to validate target_collection_handle references
+ * @param collectionsConfig - The collections config to validate against
+ * @param configName - The config name to load ('wyn' or 'oilslick'). Defaults to env CONFIG_NAME or 'wyn'.
  */
-export function loadMenusConfig(collectionsConfig: CollectionsConfig): MenusConfig {
+export function loadMenusConfig(collectionsConfig: CollectionsConfig, configName?: ConfigName): MenusConfig {
+  // Resolve config name: parameter > env > default
+  const resolvedConfigName: ConfigName = configName ||
+    (process.env.CONFIG_NAME as ConfigName) ||
+    'wyn';
+
+  const configPath = getConfigPath(resolvedConfigName);
+
   let content: string;
   try {
-    content = readFileSync(CONFIG_PATH, 'utf-8');
+    content = readFileSync(configPath, 'utf-8');
   } catch (error) {
-    throw new Error(`Could not read menus config at ${CONFIG_PATH}: ${error}`);
+    throw new Error(`Could not read menus config at ${configPath}: ${error}`);
   }
 
   let config: MenusConfig;
