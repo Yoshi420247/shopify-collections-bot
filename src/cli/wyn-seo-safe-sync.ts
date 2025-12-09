@@ -14,7 +14,7 @@
 import { program } from 'commander';
 import chalk from 'chalk';
 import { loadMenusConfig } from '../config/menusConfig.js';
-import { loadCollectionsConfig } from '../config/collectionsConfig.js';
+import { loadCollectionsConfig, type ConfigName } from '../config/collectionsConfig.js';
 import { validateEnvironment, testConnection } from '../shopify/graphqlClient.js';
 import { planCollectionsSync, executeCollectionsSync } from '../wyn/collections/collectionsSync.js';
 import {
@@ -28,20 +28,23 @@ import {
 program
   .name('wyn-seo-safe-sync')
   .description('SEO-safe sync of collections and menus with automatic redirect preservation')
+  .option('--config <name>', 'Config name: wyn or oilslick (default: wyn)', 'wyn')
   .option('--apply', 'Actually apply changes (default is dry-run)')
   .option('--collections-only', 'Only sync collections')
   .option('--menus-only', 'Only sync menus')
   .option('--publish', 'Publish new collections to Online Store')
   .option('--no-redirects', 'Skip creating URL redirects (not recommended)')
-  .option('--redirect-target <path>', 'Default redirect target for removed items', '/collections/shop-all-what-you-need')
+  .option('--redirect-target <path>', 'Default redirect target for removed items', '/collections/all')
   .option('--verbose', 'Show detailed output')
   .parse(process.argv);
 
 const options = program.opts();
 
 async function main() {
+  const configName = options.config as ConfigName;
+
   console.log(chalk.bold.cyan('\n╔════════════════════════════════════════════════════════════════════╗'));
-  console.log(chalk.bold.cyan('║           WYN SEO-SAFE SYNC - Collections & Menus                  ║'));
+  console.log(chalk.bold.cyan(`║     SEO-SAFE SYNC (${configName.toUpperCase()} CONFIG) - Collections & Menus               ║`));
   console.log(chalk.bold.cyan('╚════════════════════════════════════════════════════════════════════╝\n'));
 
   if (!options.apply) {
@@ -50,9 +53,9 @@ async function main() {
   }
 
   // Load configs
-  console.log(chalk.blue('Loading configurations...'));
-  const collectionsConfig = loadCollectionsConfig();
-  const menusConfig = loadMenusConfig(collectionsConfig);
+  console.log(chalk.blue(`Loading ${configName} configurations...`));
+  const collectionsConfig = loadCollectionsConfig(configName);
+  const menusConfig = loadMenusConfig(collectionsConfig, configName);
   console.log(chalk.green(`  ✓ Loaded ${collectionsConfig.collections.length} collections`));
   console.log(chalk.green(`  ✓ Loaded ${menusConfig.menus.length} menus\n`));
 

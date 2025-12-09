@@ -5,7 +5,7 @@
  */
 
 import { program } from 'commander';
-import { loadCollectionsConfig } from '../config/collectionsConfig.js';
+import { loadCollectionsConfig, type ConfigName } from '../config/collectionsConfig.js';
 import { loadMenusConfig, printMenuStructure, getMenuByHandle } from '../config/menusConfig.js';
 import {
   planMenusSync,
@@ -20,31 +20,34 @@ import { testConnection, validateEnvironment } from '../shopify/graphqlClient.js
 
 program
   .name('wyn-sync-menus')
-  .description('Sync What You Need navigation menus to Shopify')
+  .description('Sync navigation menus to Shopify')
+  .option('--config <name>', 'Config name: wyn or oilslick (default: wyn)', 'wyn')
   .option('--apply', 'Actually apply changes (default is dry-run)')
   .option('--compare', 'Show existing vs desired menu structure')
   .option('--skip-api', 'Skip Shopify API calls (config validation only)')
   .option('--menu <handle>', 'Only sync a specific menu by handle')
   .option('--seo-safe', 'Use SEO-safe sync with automatic URL redirects (recommended)')
-  .option('--redirect-target <path>', 'Default redirect target for removed items', '/collections/shop-all-what-you-need')
+  .option('--redirect-target <path>', 'Default redirect target for removed items', '/collections/all')
   .parse(process.argv);
 
 const options = program.opts();
 
 async function main(): Promise<void> {
-  console.log('WYN Menus Sync');
+  const configName = options.config as ConfigName;
+
+  console.log(`Menus Sync (${configName} config)`);
   console.log('='.repeat(60));
   console.log('');
 
   try {
     // Load and validate collections config first
-    console.log('Loading collections configuration...');
-    const collectionsConfig = loadCollectionsConfig();
+    console.log(`Loading ${configName} collections configuration...`);
+    const collectionsConfig = loadCollectionsConfig(configName);
     console.log(`Loaded ${collectionsConfig.collections.length} collection definitions`);
 
     // Load and validate menus config
-    console.log('Loading menus configuration...');
-    const menusConfig = loadMenusConfig(collectionsConfig);
+    console.log(`Loading ${configName} menus configuration...`);
+    const menusConfig = loadMenusConfig(collectionsConfig, configName);
     console.log(`Loaded ${menusConfig.menus.length} menu definitions`);
     console.log('');
 

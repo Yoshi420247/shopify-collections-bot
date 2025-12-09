@@ -13,7 +13,16 @@ import { loadParsedTaggingSpec } from './taggingSpecLoader.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const PROJECT_ROOT = join(__dirname, '..', '..');
-const CONFIG_PATH = join(PROJECT_ROOT, 'config', 'wyn_collections.yml');
+
+// Valid config names
+export type ConfigName = 'wyn' | 'oilslick';
+
+/**
+ * Get the config file path for a given config name
+ */
+function getConfigPath(configName: ConfigName): string {
+  return join(PROJECT_ROOT, 'config', `${configName}_collections.yml`);
+}
 
 /**
  * Validate a single collection entry
@@ -55,7 +64,7 @@ function validateCollectionEntry(
   }
 
   // Validate group
-  const validGroups = ['devices', 'accessories', 'brands', 'themes', 'merch', 'misc'];
+  const validGroups = ['devices', 'accessories', 'brands', 'themes', 'merch', 'misc', 'parent', 'extraction', 'packaging'];
   if (entry.group && !validGroups.includes(entry.group)) {
     errors.push(`${prefix}: invalid group "${entry.group}", must be one of: ${validGroups.join(', ')}`);
   }
@@ -137,13 +146,21 @@ function validateCondition(
 
 /**
  * Load and validate the collections configuration
+ * @param configName - The config name to load ('wyn' or 'oilslick'). Defaults to env CONFIG_NAME or 'wyn'.
  */
-export function loadCollectionsConfig(): CollectionsConfig {
+export function loadCollectionsConfig(configName?: ConfigName): CollectionsConfig {
+  // Resolve config name: parameter > env > default
+  const resolvedConfigName: ConfigName = configName ||
+    (process.env.CONFIG_NAME as ConfigName) ||
+    'wyn';
+
+  const configPath = getConfigPath(resolvedConfigName);
+
   let content: string;
   try {
-    content = readFileSync(CONFIG_PATH, 'utf-8');
+    content = readFileSync(configPath, 'utf-8');
   } catch (error) {
-    throw new Error(`Could not read collections config at ${CONFIG_PATH}: ${error}`);
+    throw new Error(`Could not read collections config at ${configPath}: ${error}`);
   }
 
   let config: CollectionsConfig;
