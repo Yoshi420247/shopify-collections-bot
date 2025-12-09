@@ -1,7 +1,7 @@
 {
   "name": "shopify-collections-bot",
   "version": "1.0.0",
-  "description": "Shopify collections and menus automation for What You Need smokeshop",
+  "description": "Shopify collections and menus automation",
   "type": "module",
   "main": "dist/index.js",
   "directories": {
@@ -15,6 +15,8 @@
     "wyn:sync-menus": "npx tsx src/cli/wyn-sync-menus.ts",
     "wyn:menu-audit": "npx tsx src/cli/wyn-menu-audit.ts",
     "wyn:seo-safe-sync": "npx tsx src/cli/wyn-seo-safe-sync.ts",
+    "oilslick:preview": "npx tsx src/cli/wyn-seo-safe-sync.ts --config oilslick",
+    "oilslick:deploy": "npx tsx src/cli/wyn-seo-safe-sync.ts --config oilslick --apply --publish",
     "test": "jest"
   },
   "repository": {
