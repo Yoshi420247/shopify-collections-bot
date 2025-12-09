@@ -1,0 +1,72 @@
+name: Menu & SEO Audit
+
+on:
+  workflow_dispatch:
+    inputs:
+      include_seo:
+        description: 'Include SEO audit'
+        required: false
+        default: 'true'
+        type: boolean
+      include_redirects:
+        description: 'Include redirects audit'
+        required: false
+        default: 'true'
+        type: boolean
+      fix_redirect_chains:
+        description: 'Automatically fix redirect chains'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    # Run weekly on Monday at 9am UTC
+    - cron: '0 9 * * 1'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Menu & SEO Audit
+        env:
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_ADMIN_API_TOKEN: ${{ secrets.SHOPIFY_ADMIN_API_TOKEN }}
+        run: |
+          ARGS=""
+          if [ "${{ inputs.include_seo }}" = "true" ]; then
+            ARGS="$ARGS --seo"
+          fi
+          if [ "${{ inputs.include_redirects }}" = "true" ]; then
+            ARGS="$ARGS --redirects"
+          fi
+          if [ "${{ inputs.fix_redirect_chains }}" = "true" ]; then
+            ARGS="$ARGS --fix-chains"
+          fi
+          npm run wyn:menu-audit -- $ARGS -o audit-report.txt
+
+      - name: Upload Audit Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: menu-seo-audit-report
+          path: audit-report.txt
+          retention-days: 30
+
+      - name: Post Summary
+        run: |
+          echo "## Menu & SEO Audit Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "See attached artifact for full report." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Quick Stats" >> $GITHUB_STEP_SUMMARY
+          head -100 audit-report.txt >> $GITHUB_STEP_SUMMARY

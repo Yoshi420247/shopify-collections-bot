@@ -1,0 +1,90 @@
+name: SEO-Safe Full Sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Apply changes (false = dry run)'
+        required: true
+        default: 'false'
+        type: boolean
+      publish:
+        description: 'Publish new collections to Online Store'
+        required: false
+        default: 'true'
+        type: boolean
+      create_redirects:
+        description: 'Create URL redirects for SEO preservation'
+        required: false
+        default: 'true'
+        type: boolean
+      sync_target:
+        description: 'What to sync'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - collections-only
+          - menus-only
+
+jobs:
+  seo-safe-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run SEO-Safe Sync
+        env:
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_ADMIN_API_TOKEN: ${{ secrets.SHOPIFY_ADMIN_API_TOKEN }}
+        run: |
+          ARGS="--verbose"
+
+          if [ "${{ inputs.apply }}" = "true" ]; then
+            ARGS="$ARGS --apply"
+          fi
+
+          if [ "${{ inputs.publish }}" = "true" ]; then
+            ARGS="$ARGS --publish"
+          fi
+
+          if [ "${{ inputs.create_redirects }}" = "false" ]; then
+            ARGS="$ARGS --no-redirects"
+          fi
+
+          if [ "${{ inputs.sync_target }}" = "collections-only" ]; then
+            ARGS="$ARGS --collections-only"
+          elif [ "${{ inputs.sync_target }}" = "menus-only" ]; then
+            ARGS="$ARGS --menus-only"
+          fi
+
+          echo "Running: npm run wyn:seo-safe-sync -- $ARGS"
+          npm run wyn:seo-safe-sync -- $ARGS
+
+      - name: Post Summary
+        if: always()
+        run: |
+          echo "## SEO-Safe Sync Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ inputs.apply }}" = "true" ]; then
+            echo "✅ Changes were applied to Shopify" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "🔍 Dry run - no changes were made" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "- **Apply changes:** ${{ inputs.apply }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Publish to Online Store:** ${{ inputs.publish }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Create URL redirects:** ${{ inputs.create_redirects }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Sync target:** ${{ inputs.sync_target }}" >> $GITHUB_STEP_SUMMARY

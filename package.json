@@ -13,6 +13,8 @@
     "wyn:tag-audit": "npx tsx src/cli/wyn-tag-audit.ts",
     "wyn:sync-collections": "npx tsx src/cli/wyn-sync-collections.ts",
     "wyn:sync-menus": "npx tsx src/cli/wyn-sync-menus.ts",
+    "wyn:menu-audit": "npx tsx src/cli/wyn-menu-audit.ts",
+    "wyn:seo-safe-sync": "npx tsx src/cli/wyn-seo-safe-sync.ts",
     "test": "jest"
   },
   "repository": {
