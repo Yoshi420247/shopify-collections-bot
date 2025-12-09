@@ -1,0 +1,31 @@
+name: Tag Audit
+
+on:
+  workflow_dispatch:  # Manual trigger from GitHub UI
+  push:
+    paths:
+      - 'data/*.csv'  # Run when CSV is updated
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tag audit
+        run: npm run wyn:tag-audit -- -o audit-report.json
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: tag-audit-report
+          path: audit-report.json
