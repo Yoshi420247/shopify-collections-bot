@@ -39,7 +39,6 @@ const PUBLISH_TO_PUBLICATION = `
       userErrors {
         field
         message
-        code
       }
     }
   }
@@ -58,7 +57,6 @@ const UNPUBLISH_FROM_PUBLICATION = `
       userErrors {
         field
         message
-        code
       }
     }
   }
