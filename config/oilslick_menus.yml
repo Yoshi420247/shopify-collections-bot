@@ -1,0 +1,193 @@
+# Oil Slick Pad Main Menu Configuration
+# This file is the SINGLE SOURCE OF TRUTH for the oilslickpad.com navigation.
+#
+# The store serves two distinct customer segments:
+# 1. Extraction & Packaging - Professional extraction supplies, nonstick materials, storage
+# 2. Smoke & Vape - Consumer headshop products from What You Need distributor
+#
+# Menu design follows Shopify e-commerce best practices:
+# - Clear primary category separation for dual product lines
+# - 5-7 top-level items (cognitive load optimization)
+# - Mega menu dropdowns for rich navigation
+# - Logical grouping by customer intent
+# - Mobile-responsive hierarchy
+
+version: "1.0"
+
+menus:
+  - handle: "main-menu"
+    title: "Main menu"
+    items:
+      # =========================================
+      # SHOP ALL - Quick access to entire catalog
+      # =========================================
+      - title: "Shop All"
+        type: "COLLECTION"
+        target_collection_handle: "all"
+
+      # =========================================
+      # EXTRACTION & PACKAGING
+      # Oil Slick's core product line for processors,
+      # extractors, and cannabis packaging professionals
+      # =========================================
+      - title: "Extraction & Packaging"
+        type: "COLLECTION"
+        target_collection_handle: "extraction-packaging"
+        children:
+          # Nonstick Materials
+          - title: "Silicone Pads & Mats"
+            type: "COLLECTION"
+            target_collection_handle: "silicone-pads"
+          - title: "FEP Sheets & Rolls"
+            type: "COLLECTION"
+            target_collection_handle: "fep-sheets"
+          - title: "PTFE Sheets & Rolls"
+            type: "COLLECTION"
+            target_collection_handle: "ptfe-sheets"
+          - title: "Parchment Paper"
+            type: "COLLECTION"
+            target_collection_handle: "parchment-paper"
+          # Storage & Packaging
+          - title: "Glass Jars"
+            type: "COLLECTION"
+            target_collection_handle: "glass-jars"
+          - title: "Concentrate Containers"
+            type: "COLLECTION"
+            target_collection_handle: "concentrate-containers"
+          # All Extraction
+          - title: "Shop All Extraction"
+            type: "COLLECTION"
+            target_collection_handle: "extraction-packaging"
+
+      # =========================================
+      # SMOKE & VAPE
+      # Headshop products from What You Need
+      # =========================================
+      - title: "Smoke & Vape"
+        type: "COLLECTION"
+        target_collection_handle: "smoke-vape"
+        children:
+          # Glass Devices - Primary smoking hardware
+          - title: "Bongs"
+            type: "COLLECTION"
+            target_collection_handle: "bongs"
+          - title: "Dab Rigs"
+            type: "COLLECTION"
+            target_collection_handle: "dab-rigs"
+          - title: "Bubblers"
+            type: "COLLECTION"
+            target_collection_handle: "bubblers"
+          - title: "Hand Pipes"
+            type: "COLLECTION"
+            target_collection_handle: "hand-pipes"
+          - title: "One Hitters & Chillums"
+            type: "COLLECTION"
+            target_collection_handle: "one-hitters-chillums"
+          - title: "Nectar Collectors"
+            type: "COLLECTION"
+            target_collection_handle: "nectar-collectors"
+          # Shop All Smoke
+          - title: "Shop All Smoke & Vape"
+            type: "COLLECTION"
+            target_collection_handle: "smoke-vape"
+
+      # =========================================
+      # ACCESSORIES
+      # Dab accessories, smoking accessories, tools
+      # =========================================
+      - title: "Accessories"
+        type: "COLLECTION"
+        target_collection_handle: "accessories"
+        children:
+          # Dab Accessories
+          - title: "Quartz Bangers"
+            type: "COLLECTION"
+            target_collection_handle: "quartz-bangers"
+          - title: "Carb Caps"
+            type: "COLLECTION"
+            target_collection_handle: "carb-caps"
+          - title: "Dab Tools"
+            type: "COLLECTION"
+            target_collection_handle: "dab-tools"
+          - title: "Torches"
+            type: "COLLECTION"
+            target_collection_handle: "torches"
+          # Smoking Accessories
+          - title: "Flower Bowls"
+            type: "COLLECTION"
+            target_collection_handle: "flower-bowls"
+          - title: "Grinders"
+            type: "COLLECTION"
+            target_collection_handle: "grinders"
+          - title: "Rolling Papers & Cones"
+            type: "COLLECTION"
+            target_collection_handle: "rolling-papers-cones"
+          - title: "Rolling Accessories"
+            type: "COLLECTION"
+            target_collection_handle: "rolling-accessories"
+          - title: "Ash Catchers & Downstems"
+            type: "COLLECTION"
+            target_collection_handle: "ash-catchers-downstems"
+          - title: "Trays & Work Surfaces"
+            type: "COLLECTION"
+            target_collection_handle: "trays-work-surfaces"
+          - title: "Vapes & Electronics"
+            type: "COLLECTION"
+            target_collection_handle: "vapes-electronics"
+
+      # =========================================
+      # BRANDS
+      # Popular brands customers search for
+      # =========================================
+      - title: "Brands"
+        type: "COLLECTION"
+        target_collection_handle: "raw"
+        children:
+          - title: "RAW"
+            type: "COLLECTION"
+            target_collection_handle: "raw"
+          - title: "Zig Zag"
+            type: "COLLECTION"
+            target_collection_handle: "zig-zag"
+          - title: "Vibes"
+            type: "COLLECTION"
+            target_collection_handle: "vibes"
+          - title: "Elements"
+            type: "COLLECTION"
+            target_collection_handle: "elements"
+          - title: "Cookies"
+            type: "COLLECTION"
+            target_collection_handle: "cookies"
+          - title: "Puffco"
+            type: "COLLECTION"
+            target_collection_handle: "puffco"
+          - title: "Lookah"
+            type: "COLLECTION"
+            target_collection_handle: "lookah"
+          - title: "Maven"
+            type: "COLLECTION"
+            target_collection_handle: "maven"
+          - title: "G Pen"
+            type: "COLLECTION"
+            target_collection_handle: "g-pen"
+
+      # =========================================
+      # FEATURED COLLECTIONS
+      # Curated collections and themes
+      # =========================================
+      - title: "Featured"
+        type: "COLLECTION"
+        target_collection_handle: "heady-glass"
+        children:
+          - title: "Heady Glass"
+            type: "COLLECTION"
+            target_collection_handle: "heady-glass"
+          - title: "Made In USA"
+            type: "COLLECTION"
+            target_collection_handle: "made-in-usa-glass"
+          - title: "Silicone Pieces"
+            type: "COLLECTION"
+            target_collection_handle: "silicone-rigs-bongs"
+          - title: "Travel Friendly"
+            type: "COLLECTION"
+            target_collection_handle: "travel-friendly"
