@@ -40,10 +40,16 @@ function findTaggingSpecFile(): string {
  */
 function extractYamlFromMarkdown(content: string): string {
   // Look for the YAML block starting with what_you_need_tagging_spec
-  // The file uses escaped underscores in markdown, so we need to handle both formats
+  // The file uses escaped underscores in markdown, so we need to handle various formats:
+  // - what_you_need_tagging_spec: (plain)
+  // - what\_you\_need\_tagging\_spec: (single backslash escape)
+  // - what\\_you\\_need\\_tagging\\_spec: (double backslash in file)
+  // - what\\\_you\\\_need\\\_tagging\\\_spec: (triple backslash from markdown export)
   const patterns = [
     /what_you_need_tagging_spec:/,
-    /what\\\_you\\\_need\\\_tagging\\\_spec:/
+    /what\\_you\\_need\\_tagging\\_spec:/,
+    /what\\\\\_you\\\\\_need\\\\\_tagging\\\\\_spec:/,
+    /what\\\\\\\_you\\\\\\\_need\\\\\\\_tagging\\\\\\\_spec:/
   ];
 
   let startIndex = -1;
@@ -62,14 +68,16 @@ function extractYamlFromMarkdown(content: string): string {
   // Extract from the start to the end of the file
   let yamlContent = content.slice(startIndex);
 
-  // Clean up markdown escape characters
+  // Clean up markdown escape characters - handle multiple backslash variations
   yamlContent = yamlContent
-    .replace(/\\\_/g, '_')  // Unescape underscores
-    .replace(/\\</g, '<')   // Unescape angle brackets
+    .replace(/\\\\\\_/g, '_')  // Triple backslash-underscore -> underscore
+    .replace(/\\\\_/g, '_')    // Double backslash-underscore -> underscore
+    .replace(/\\_/g, '_')      // Single backslash-underscore -> underscore
+    .replace(/\\</g, '<')      // Unescape angle brackets
     .replace(/\\>/g, '>')
-    .replace(/\\\-/g, '-')  // Unescape hyphens at start of lines
-    .replace(/\\\./g, '.')  // Unescape dots
-    .replace(/\\\*/g, '*'); // Unescape asterisks
+    .replace(/\\-/g, '-')      // Unescape hyphens
+    .replace(/\\\./g, '.')     // Unescape dots
+    .replace(/\\\*/g, '*');    // Unescape asterisks
 
   return yamlContent;
 }
