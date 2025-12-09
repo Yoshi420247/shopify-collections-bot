@@ -1,0 +1,219 @@
+# Oil Slick Extraction & Packaging Collections Configuration
+# This file defines collections for Oil Slick's core product line:
+# nonstick materials, extraction supplies, and packaging.
+#
+# These collections complement the WYN collections (smoke & vape products)
+# to create a complete catalog for oilslickpad.com.
+
+version: "1.0"
+vendor: "Oil Slick"
+
+collections:
+  # ===========================================
+  # PARENT COLLECTION - EXTRACTION & PACKAGING
+  # ===========================================
+
+  - key: extraction-packaging
+    title: "Extraction & Packaging"
+    handle: "extraction-packaging"
+    group: "parent"
+    description: "Professional extraction supplies, nonstick materials, and cannabis packaging. Tools to help you concentrate."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "VENDOR"
+          relation: "EQUALS"
+          value: "Oil Slick"
+    vendor_filter:
+      enabled: true
+    exclude_conditions: []
+
+  # ===========================================
+  # NONSTICK MATERIALS
+  # ===========================================
+
+  - key: silicone-pads
+    title: "Silicone Pads & Mats"
+    handle: "silicone-pads"
+    group: "extraction"
+    description: "Oil Slick's signature nonstick silicone pads and mats for extraction, dabbing, and storage. The original tool for everything sticky."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "category:silicone-pad"
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "category:silicone-mat"
+        - field: "PRODUCT_TYPE"
+          relation: "EQUALS"
+          value: "Silicone Pad"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: fep-sheets
+    title: "FEP Sheets & Rolls"
+    handle: "fep-sheets"
+    group: "extraction"
+    description: "Clear FEP (Fluorinated Ethylene Propylene) sheets and rolls for purging, slab storage, and extraction. Superior nonstick performance."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "category:fep"
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "material:fep"
+        - field: "PRODUCT_TYPE"
+          relation: "EQUALS"
+          value: "FEP"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: ptfe-sheets
+    title: "PTFE Sheets & Rolls"
+    handle: "ptfe-sheets"
+    group: "extraction"
+    description: "PTFE (Polytetrafluoroethylene) nonstick sheets and rolls. Professional-grade extraction materials."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "category:ptfe"
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "material:ptfe"
+        - field: "PRODUCT_TYPE"
+          relation: "EQUALS"
+          value: "PTFE"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: parchment-paper
+    title: "Parchment Paper"
+    handle: "parchment-paper"
+    group: "extraction"
+    description: "Oil Slick nonstick parchment paper for rosin pressing, extraction, and storage. Foil-backed and standard options."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "category:parchment"
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "category:paper"
+        - field: "PRODUCT_TYPE"
+          relation: "EQUALS"
+          value: "Parchment"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  # ===========================================
+  # STORAGE & PACKAGING
+  # ===========================================
+
+  - key: glass-jars
+    title: "Glass Jars"
+    handle: "glass-jars"
+    group: "packaging"
+    description: "Child-resistant glass jars in multiple sizes for concentrate storage and cannabis packaging. Airtight and durable."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "category:glass-jar"
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "category:jar"
+        - field: "PRODUCT_TYPE"
+          relation: "EQUALS"
+          value: "Glass Jar"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: concentrate-containers
+    title: "Concentrate Containers"
+    handle: "concentrate-containers"
+    group: "packaging"
+    description: "Silicone and glass containers for concentrate storage. Child-resistant options available."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "category:concentrate-container"
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "category:container"
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "use:storage"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  # ===========================================
+  # PARENT COLLECTION - SMOKE & VAPE
+  # ===========================================
+
+  - key: smoke-vape
+    title: "Smoke & Vape"
+    handle: "smoke-vape"
+    group: "parent"
+    description: "Premium headshop products - bongs, dab rigs, hand pipes, vaporizers, and smoking accessories."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "VENDOR"
+          relation: "EQUALS"
+          value: "What You Need"
+    vendor_filter:
+      enabled: true
+    exclude_conditions: []
+
+  # ===========================================
+  # PARENT COLLECTION - ACCESSORIES
+  # ===========================================
+
+  - key: accessories
+    title: "Accessories"
+    handle: "accessories"
+    group: "parent"
+    description: "Dab accessories, smoking accessories, tools, and everything you need for your setup."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "pillar:accessory"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
