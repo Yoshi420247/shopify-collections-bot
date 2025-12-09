@@ -1,0 +1,729 @@
+# What You Need Collections Configuration
+# This file is the SINGLE SOURCE OF TRUTH for all WYN collections.
+# All collections defined here will be created/updated as Shopify smart collections.
+
+version: "1.0"
+vendor: "What You Need"
+
+collections:
+  # ===========================================
+  # DEVICE COLLECTIONS
+  # ===========================================
+
+  - key: bongs
+    title: "Bongs"
+    handle: "bongs"
+    group: "devices"
+    description: "All bongs and water pipes primarily used for flower or hybrid use."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true  # OR logic
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:glass-bong"
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:silicone-bong"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: dab-rigs
+    title: "Dab Rigs"
+    handle: "dab-rigs"
+    group: "devices"
+    description: "All rigs for dabbing and hybrid use."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:glass-rig"
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:silicone-rig"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: bubblers
+    title: "Bubblers"
+    handle: "bubblers"
+    group: "devices"
+    description: "All standalone bubblers for flower or hybrid use."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:bubbler"
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:joint-bubbler"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: hand-pipes
+    title: "Hand Pipes"
+    handle: "hand-pipes"
+    group: "devices"
+    description: "Spoons, sherlocks, steamrollers, hammers and similar dry pipes."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:spoon-pipe"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: one-hitters-chillums
+    title: "One Hitters & Chillums"
+    handle: "one-hitters-chillums"
+    group: "devices"
+    description: "One hitters, taster bats and chillums."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:chillum-onehitter"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: nectar-collectors
+    title: "Nectar Collectors"
+    handle: "nectar-collectors"
+    group: "devices"
+    description: "Nectar collectors and straws, including electronic nectar collectors."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:nectar-collector"
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:electronic-nectar-collector"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  # ===========================================
+  # ACCESSORY COLLECTIONS
+  # ===========================================
+
+  - key: flower-bowls
+    title: "Flower Bowls"
+    handle: "flower-bowls"
+    group: "accessories"
+    description: "Slide bowls for bongs and rigs."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:flower-bowl"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: quartz-bangers
+    title: "Quartz Bangers"
+    handle: "quartz-bangers"
+    group: "accessories"
+    description: "All bangers and similar concentrate joints."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:banger"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: carb-caps
+    title: "Carb Caps"
+    handle: "carb-caps"
+    group: "accessories"
+    description: "All caps used with bangers."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:carb-cap"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: dab-tools
+    title: "Dab Tools"
+    handle: "dab-tools"
+    group: "accessories"
+    description: "Dabbers and specialized concentrate tools."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:dab-tool"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: grinders
+    title: "Grinders"
+    handle: "grinders"
+    group: "accessories"
+    description: "Flower grinders of any material."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:grinder"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: rolling-papers-cones
+    title: "Rolling Papers & Cones"
+    handle: "rolling-papers-cones"
+    group: "accessories"
+    description: "All papers, booklets, and cones."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:rolling-paper"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: rolling-accessories
+    title: "Rolling Accessories"
+    handle: "rolling-accessories"
+    group: "accessories"
+    description: "Cone loaders, funnel fillers, matches, and other rolling helpers."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:rolling-accessory"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: trays-work-surfaces
+    title: "Trays & Work Surfaces"
+    handle: "trays-work-surfaces"
+    group: "accessories"
+    description: "Rolling trays and similar surfaces."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:tray"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: torches
+    title: "Torches"
+    handle: "torches"
+    group: "accessories"
+    description: "All dab torches."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:torch"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: ash-catchers-downstems
+    title: "Ash Catchers & Downstems"
+    handle: "ash-catchers-downstems"
+    group: "accessories"
+    description: "Filtration and attachment hardware for bongs and rigs."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:ash-catcher"
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:downstem"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: vapes-electronics
+    title: "Vapes & Electronics"
+    handle: "vapes-electronics"
+    group: "accessories"
+    description: "Batteries, coils and powered nectar collectors."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:vape-battery"
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:vape-coil"
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:electronic-nectar-collector"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: packaging-storage
+    title: "Packaging & Storage"
+    handle: "packaging-storage"
+    group: "accessories"
+    description: "Jars, boxes and similar storage items."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:storage-accessory"
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "pillar:packaging"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  # ===========================================
+  # MERCH COLLECTION
+  # ===========================================
+
+  - key: pendants-merch
+    title: "Pendants & Merch"
+    handle: "pendants-merch"
+    group: "merch"
+    description: "Decorative pendants and non-hardware merch."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "family:merch-pendant"
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "pillar:merch"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  # ===========================================
+  # THEME COLLECTIONS
+  # ===========================================
+
+  - key: made-in-usa-glass
+    title: "Made In USA Glass"
+    handle: "made-in-usa-glass"
+    group: "themes"
+    description: "Showcase domestic production glass - devices and functional accessories only."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: false  # AND logic for include + exclude
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "style:made-in-usa"
+    vendor_filter:
+      enabled: false
+    # Shopify smart collections don't support negative conditions directly.
+    # This is documented for manual exclusion or post-processing.
+    exclude_conditions:
+      - field: "TAG"
+        relation: "EQUALS"
+        value: "pillar:packaging"
+      - field: "TAG"
+        relation: "EQUALS"
+        value: "pillar:merch"
+
+  - key: heady-glass
+    title: "Heady Glass"
+    handle: "heady-glass"
+    group: "themes"
+    description: "High end art and collab pieces."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "style:heady"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: silicone-rigs-bongs
+    title: "Silicone Rigs & Bongs"
+    handle: "silicone-rigs-bongs"
+    group: "themes"
+    description: "All silicone forward hard goods."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "material:silicone"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: travel-friendly
+    title: "Travel Friendly"
+    handle: "travel-friendly"
+    group: "themes"
+    description: "Smaller, pocket and case based pieces for travel."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "style:travel-friendly"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  # ===========================================
+  # GLOBAL VENDOR COLLECTION
+  # ===========================================
+
+  - key: shop-all-what-you-need
+    title: "Shop All What You Need"
+    handle: "shop-all-what-you-need"
+    group: "misc"
+    description: "All products from the What You Need vendor."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "VENDOR"
+          relation: "EQUALS"
+          value: "What You Need"
+    vendor_filter:
+      enabled: true
+    exclude_conditions: []
+
+  # ===========================================
+  # BRAND COLLECTIONS
+  # ===========================================
+
+  - key: raw
+    title: "RAW"
+    handle: "raw"
+    group: "brands"
+    description: "All RAW brand rolling products and accessories."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "brand:raw"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: zig-zag
+    title: "Zig Zag"
+    handle: "zig-zag"
+    group: "brands"
+    description: "All Zig Zag rolling papers and cones."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "brand:zig-zag"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: vibes
+    title: "Vibes"
+    handle: "vibes"
+    group: "brands"
+    description: "All Vibes brand products."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "brand:vibes"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: elements
+    title: "Elements"
+    handle: "elements"
+    group: "brands"
+    description: "All Elements brand products."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "brand:elements"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: cookies
+    title: "Cookies"
+    handle: "cookies"
+    group: "brands"
+    description: "Highlighted Cookies bongs and rigs as well as any accessories."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "brand:cookies"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: lookah
+    title: "Lookah"
+    handle: "lookah"
+    group: "brands"
+    description: "All Lookah brand products."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "brand:lookah"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: puffco
+    title: "Puffco"
+    handle: "puffco"
+    group: "brands"
+    description: "All Puffco brand products."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "brand:puffco"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: maven
+    title: "Maven"
+    handle: "maven"
+    group: "brands"
+    description: "All Maven brand products."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "brand:maven"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: g-pen
+    title: "G Pen"
+    handle: "g-pen"
+    group: "brands"
+    description: "All G Pen brand products."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "brand:g-pen"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: only-quartz
+    title: "Only Quartz"
+    handle: "only-quartz"
+    group: "brands"
+    description: "All Only Quartz brand products."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "brand:only-quartz"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: eo-vape
+    title: "EO Vape"
+    handle: "eo-vape"
+    group: "brands"
+    description: "All EO Vape brand products."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "brand:eo-vape"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: monark
+    title: "Monark"
+    handle: "monark"
+    group: "brands"
+    description: "All Monark brand products."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "brand:monark"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: 710-sci
+    title: "710 SCI"
+    handle: "710-sci"
+    group: "brands"
+    description: "All 710 SCI brand products."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "brand:710-sci"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: peaselburg
+    title: "Peaselburg"
+    handle: "peaselburg"
+    group: "brands"
+    description: "All Peaselburg brand products."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "brand:peaselburg"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  - key: scorch
+    title: "Scorch"
+    handle: "scorch"
+    group: "brands"
+    description: "All Scorch brand products."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "TAG"
+          relation: "EQUALS"
+          value: "brand:scorch"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
