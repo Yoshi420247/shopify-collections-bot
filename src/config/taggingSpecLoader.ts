@@ -113,10 +113,11 @@ function parseTagDimensions(dimensionsText: string): Partial<ParsedTaggingSpec> 
     allowedStyles: []
   };
 
-  // Known dimensions from the spec
+  // Known dimensions from the spec (includes 'category' for Oil Slick products)
   result.allowedDimensions = [
     'pillar', 'family', 'brand', 'material', 'format', 'use',
-    'joint_size', 'joint_angle', 'joint_gender', 'length', 'capacity', 'style', 'bundle'
+    'joint_size', 'joint_angle', 'joint_gender', 'length', 'capacity', 'style', 'bundle',
+    'category'  // Oil Slick extraction/packaging products use category:xxx tags
   ];
 
   // Extract pillar values

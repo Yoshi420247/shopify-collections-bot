@@ -145,16 +145,10 @@ function validateCondition(
 }
 
 /**
- * Load and validate the collections configuration
- * @param configName - The config name to load ('wyn' or 'oilslick'). Defaults to env CONFIG_NAME or 'wyn'.
+ * Load a single collections config file
  */
-export function loadCollectionsConfig(configName?: ConfigName): CollectionsConfig {
-  // Resolve config name: parameter > env > default
-  const resolvedConfigName: ConfigName = configName ||
-    (process.env.CONFIG_NAME as ConfigName) ||
-    'wyn';
-
-  const configPath = getConfigPath(resolvedConfigName);
+function loadSingleConfig(configName: ConfigName): CollectionsConfig {
+  const configPath = getConfigPath(configName);
 
   let content: string;
   try {
@@ -163,11 +157,54 @@ export function loadCollectionsConfig(configName?: ConfigName): CollectionsConfi
     throw new Error(`Could not read collections config at ${configPath}: ${error}`);
   }
 
-  let config: CollectionsConfig;
   try {
-    config = yaml.load(content) as CollectionsConfig;
+    return yaml.load(content) as CollectionsConfig;
   } catch (error) {
     throw new Error(`Failed to parse collections config YAML: ${error}`);
+  }
+}
+
+/**
+ * Load and validate the collections configuration
+ * @param configName - The config name to load ('wyn' or 'oilslick'). Defaults to env CONFIG_NAME or 'wyn'.
+ *
+ * For 'oilslick' config: Merges WYN collections (smoke/vape products) with Oil Slick collections
+ * (extraction/packaging) since oilslickpad.com sells both product lines.
+ */
+export function loadCollectionsConfig(configName?: ConfigName): CollectionsConfig {
+  // Resolve config name: parameter > env > default
+  const resolvedConfigName: ConfigName = configName ||
+    (process.env.CONFIG_NAME as ConfigName) ||
+    'wyn';
+
+  let config: CollectionsConfig;
+
+  if (resolvedConfigName === 'oilslick') {
+    // For oilslick: merge WYN collections (smoke/vape) with Oil Slick collections (extraction/packaging)
+    // Oil Slick pad sells BOTH product lines, so we need all collections
+    const wynConfig = loadSingleConfig('wyn');
+    const oilslickConfig = loadSingleConfig('oilslick');
+
+    // Create a map for deduplication (oilslick collections take precedence)
+    const collectionMap = new Map<string, CollectionConfigEntry>();
+
+    // First add all WYN collections
+    for (const coll of wynConfig.collections) {
+      collectionMap.set(coll.handle, coll);
+    }
+
+    // Then add/override with Oil Slick collections
+    for (const coll of oilslickConfig.collections) {
+      collectionMap.set(coll.handle, coll);
+    }
+
+    config = {
+      version: oilslickConfig.version || wynConfig.version,
+      vendor: oilslickConfig.vendor,
+      collections: Array.from(collectionMap.values())
+    };
+  } else {
+    config = loadSingleConfig(resolvedConfigName);
   }
 
   // Load tagging spec for validation
@@ -176,9 +213,9 @@ export function loadCollectionsConfig(configName?: ConfigName): CollectionsConfi
     spec = loadParsedTaggingSpec();
   } catch (error) {
     console.warn(`Warning: Could not load tagging spec for validation: ${error}`);
-    // Create a minimal spec for basic validation
+    // Create a minimal spec for basic validation (includes Oil Slick dimensions)
     spec = {
-      allowedDimensions: ['pillar', 'family', 'brand', 'material', 'format', 'use', 'style', 'joint_size', 'joint_angle', 'joint_gender', 'length', 'capacity', 'bundle'],
+      allowedDimensions: ['pillar', 'family', 'brand', 'material', 'format', 'use', 'style', 'joint_size', 'joint_angle', 'joint_gender', 'length', 'capacity', 'bundle', 'category'],
       allowedPillars: [],
       allowedFamilies: [],
       allowedBrands: [],
