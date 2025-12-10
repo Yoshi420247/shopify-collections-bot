@@ -10,9 +10,9 @@ import type { ShopifyMenu, ShopifyMenuItem, MenuItemConfigEntry } from '../types
 // GRAPHQL QUERIES
 // ===========================================
 
-const GET_MENU_BY_HANDLE = `
-  query GetMenuByHandle($handle: String!) {
-    menu(handle: $handle) {
+const GET_MENU_BY_ID = `
+  query GetMenuById($id: ID!) {
+    menu(id: $id) {
       id
       handle
       title
@@ -125,16 +125,27 @@ function mapMenuItemType(type: string): string {
 
 /**
  * Get a menu by its handle
+ * Note: Shopify Admin API doesn't support direct handle lookup,
+ * so we fetch all menus and filter by handle, then get full details
  */
 export async function getMenuByHandle(handle: string): Promise<ShopifyMenu | null> {
+  // First, get all menus to find the ID
+  const menus = await getMenus(250);
+  const menuSummary = menus.find(m => m.handle === handle);
+
+  if (!menuSummary) {
+    return null;
+  }
+
+  // Now get the full menu with items by ID
   interface Response {
     menu: ShopifyMenu | null;
   }
 
   const data = await shopifyAdminRequest<Response>(
-    GET_MENU_BY_HANDLE,
-    { handle },
-    'GetMenuByHandle'
+    GET_MENU_BY_ID,
+    { id: menuSummary.id },
+    'GetMenuById'
   );
 
   return data.menu;
