@@ -309,6 +309,12 @@ export async function updateMenu(
 
   const menuItems = buildMenuItemsInput(items, collectionIdByHandle);
 
+  // Debug: log what we're sending
+  console.log(`  Sending menu update with ${menuItems.length} top-level items`);
+  if (process.env.DEBUG_MENU) {
+    console.log('  Menu items payload:', JSON.stringify(menuItems, null, 2));
+  }
+
   const data = await shopifyAdminRequest<Response>(
     UPDATE_MENU,
     { id, title, items: menuItems },
