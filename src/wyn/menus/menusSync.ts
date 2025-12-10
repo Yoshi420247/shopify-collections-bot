@@ -588,7 +588,7 @@ export async function generateMenuAuditReport(
   } else {
     for (const menu of orphaned) {
       lines.push(`  - ${menu.handle} (${menu.title})`);
-      lines.push(`    Items: ${menu.itemsCount}, Reason: ${menu.reason}`);
+      lines.push(`    Reason: ${menu.reason}`);
     }
   }
   lines.push('');

@@ -69,7 +69,6 @@ export interface OrphanedMenu {
   id: string;
   handle: string;
   title: string;
-  itemsCount: number;
   reason: string;
 }
 
@@ -103,8 +102,6 @@ export async function findOrphanedMenus(
 
     if (systemMenuHandles.has(handleLower) && !configuredSet.has(handleLower)) {
       reason = 'System menu not managed by config';
-    } else if (menu.itemsCount === 0) {
-      reason = 'Empty menu with no items';
     } else if (menu.handle.includes('backup') || menu.handle.includes('old')) {
       reason = 'Appears to be a backup/old menu';
     }
@@ -113,7 +110,6 @@ export async function findOrphanedMenus(
       id: menu.id,
       handle: menu.handle,
       title: menu.title,
-      itemsCount: menu.itemsCount,
       reason
     });
   }
