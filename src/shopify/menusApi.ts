@@ -99,6 +99,18 @@ const UPDATE_MENU = `
   }
 `;
 
+const DELETE_MENU = `
+  mutation MenuDelete($id: ID!) {
+    menuDelete(id: $id) {
+      deletedMenuId
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
 // ===========================================
 // TYPE MAPPINGS
 // ===========================================
@@ -173,6 +185,40 @@ export async function getMenus(first: number = 50): Promise<Array<{ id: string; 
   );
 
   return data.menus.edges.map(edge => edge.node);
+}
+
+/**
+ * Delete a menu by ID
+ */
+export async function deleteMenu(id: string): Promise<{ success: boolean; error?: string }> {
+  interface Response {
+    menuDelete: {
+      deletedMenuId: string | null;
+      userErrors: Array<{ field: string[]; message: string }>;
+    };
+  }
+
+  try {
+    const data = await shopifyAdminRequest<Response>(
+      DELETE_MENU,
+      { id },
+      'MenuDelete'
+    );
+
+    if (data.menuDelete.userErrors.length > 0) {
+      return {
+        success: false,
+        error: data.menuDelete.userErrors.map(e => e.message).join('; ')
+      };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error)
+    };
+  }
 }
 
 /**
