@@ -1,0 +1,87 @@
+name: Auto-Optimize Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Execution mode'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - preview
+          - deploy
+      config:
+        description: 'Store configuration'
+        required: true
+        default: 'oilslick'
+        type: choice
+        options:
+          - oilslick
+          - wyn
+      skip_ai:
+        description: 'Skip AI analysis (faster, uses existing config only)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  auto-optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Auto-Optimize
+        env:
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_ADMIN_API_TOKEN: ${{ secrets.SHOPIFY_ADMIN_API_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          ARGS="--config ${{ inputs.config }} --verbose"
+
+          if [ "${{ inputs.mode }}" = "deploy" ]; then
+            ARGS="$ARGS --apply --publish"
+          fi
+
+          if [ "${{ inputs.skip_ai }}" = "true" ]; then
+            ARGS="$ARGS --skip-ai"
+          fi
+
+          echo "Running: npx tsx src/cli/auto-optimize.ts $ARGS"
+          npx tsx src/cli/auto-optimize.ts $ARGS
+
+      - name: Post Summary
+        if: always()
+        run: |
+          echo "## Auto-Optimize Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ inputs.mode }}" = "deploy" ]; then
+            echo "### Mode: DEPLOY" >> $GITHUB_STEP_SUMMARY
+            echo "Changes were applied to Shopify" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### Mode: PREVIEW (Dry Run)" >> $GITHUB_STEP_SUMMARY
+            echo "No changes were made - this was a preview" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "- **Store config:** ${{ inputs.config }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **AI Analysis:** ${{ inputs.skip_ai == 'true' && 'Skipped' || 'Enabled' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### What This Does" >> $GITHUB_STEP_SUMMARY
+          echo "1. Validates Shopify & AI connections" >> $GITHUB_STEP_SUMMARY
+          echo "2. AI analyzes product catalog for collection suggestions" >> $GITHUB_STEP_SUMMARY
+          echo "3. AI audits SEO and generates fixes" >> $GITHUB_STEP_SUMMARY
+          echo "4. AI optimizes menu structure" >> $GITHUB_STEP_SUMMARY
+          echo "5. Syncs all collections to Shopify" >> $GITHUB_STEP_SUMMARY
+          echo "6. Syncs all menus with SEO-safe redirects" >> $GITHUB_STEP_SUMMARY
+          echo "7. Publishes new collections to Online Store" >> $GITHUB_STEP_SUMMARY
