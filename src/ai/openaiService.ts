@@ -48,7 +48,7 @@ async function callOpenAI(
     model: MODEL,
     messages,
     temperature: options.temperature ?? 0.7,
-    max_completion_tokens: options.maxTokens ?? 2000,  // GPT-5.1 uses max_completion_tokens
+    max_completion_tokens: options.maxTokens ?? 4096,  // GPT-5.1 uses max_completion_tokens
   };
 
   if (options.responseFormat === 'json') {

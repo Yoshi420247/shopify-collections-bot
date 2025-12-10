@@ -327,8 +327,11 @@ async function main() {
       if (publishCollections && results.created.length > 0) {
         log('Publishing new collections to Online Store...', 1);
         const createdIds = results.created;
-        const published = await publishCollectionsToOnlineStore(createdIds);
-        log(chalk.green(`✓ Published ${published} collections`), 1);
+        const publishResult = await publishCollectionsToOnlineStore(createdIds);
+        log(chalk.green(`✓ Published ${publishResult.success.length} collections`), 1);
+        if (publishResult.failed.length > 0) {
+          log(chalk.yellow(`  Failed to publish: ${publishResult.failed.length}`), 1);
+        }
       }
 
       addResult('Collections Sync', 'success',
