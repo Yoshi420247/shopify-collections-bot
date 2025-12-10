@@ -22,6 +22,7 @@ import { loadMenusConfig } from '../config/menusConfig.js';
 import { validateEnvironment, testConnection } from '../shopify/graphqlClient.js';
 import { getAllCollections, type CollectionListItem } from '../shopify/collectionsApi.js';
 import { getProducts } from '../shopify/productsApi.js';
+import { getMenus, deleteMenu, getMenuByHandle } from '../shopify/menusApi.js';
 import { planCollectionsSync, executeCollectionsSync, formatSyncPlanReport } from '../wyn/collections/collectionsSync.js';
 import { planMenusSync, executeSeoSafeMenuSync, formatMenuSyncPlanReport } from '../wyn/menus/menusSync.js';
 import { publishCollectionsToOnlineStore } from '../shopify/publicationsApi.js';
@@ -351,15 +352,48 @@ async function main() {
   }
 
   // ===========================================================================
-  // STEP 6: Sync Menus
+  // STEP 6: Cleanup & Sync Menus
   // ===========================================================================
   currentStep++;
-  logStep(currentStep, totalSteps, 'Sync Menus');
+  logStep(currentStep, totalSteps, 'Cleanup & Sync Menus');
 
   try {
     const collectionsConfig = loadCollectionsConfig(configName);
     const menusConfig = loadMenusConfig(collectionsConfig, configName);
     log(`Loaded ${menusConfig.menus.length} menus from config`, 1);
+
+    // First, cleanup: find and delete ALL existing main-menu instances
+    log('Checking for existing menus to cleanup...', 1);
+    const allMenus = await getMenus(100);
+    const configuredHandles = menusConfig.menus.map(m => m.handle.toLowerCase());
+
+    // Find menus that match our configured handles (duplicates to delete)
+    const menusToDelete = allMenus.filter(m =>
+      configuredHandles.includes(m.handle.toLowerCase())
+    );
+
+    if (menusToDelete.length > 0) {
+      log(chalk.yellow(`  Found ${menusToDelete.length} existing menu(s) to replace:`), 1);
+      for (const menu of menusToDelete) {
+        log(chalk.gray(`    - ${menu.handle} (${menu.title}) [${menu.id}]`), 1);
+      }
+
+      if (applyChanges) {
+        log('Deleting old menus...', 1);
+        for (const menu of menusToDelete) {
+          const result = await deleteMenu(menu.id);
+          if (result.success) {
+            log(chalk.green(`    ✓ Deleted: ${menu.handle}`), 1);
+          } else {
+            log(chalk.red(`    ✗ Failed to delete ${menu.handle}: ${result.error}`), 1);
+          }
+        }
+      } else {
+        log(chalk.gray('  (Dry run - menus would be deleted and recreated)'), 1);
+      }
+    } else {
+      log(chalk.gray('  No existing menus to cleanup'), 1);
+    }
 
     log('Planning menu sync...', 1);
     const { plans, collectionIdByHandle, missingCollections } = await planMenusSync(menusConfig, collectionsConfig);
