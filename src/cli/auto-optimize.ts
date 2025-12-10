@@ -362,54 +362,37 @@ async function main() {
     const menusConfig = loadMenusConfig(collectionsConfig, configName);
     log(`Loaded ${menusConfig.menus.length} menus from config`, 1);
 
-    // First, cleanup: find and delete ALL existing main-menu instances
-    log('Checking for existing menus to cleanup...', 1);
+    // First, show ALL existing menus in Shopify for diagnostics
+    log('Fetching all existing menus from Shopify...', 1);
     const allMenus = await getMenus(100);
+    log(chalk.cyan(`  Found ${allMenus.length} total menus in Shopify:`), 1);
+    for (const menu of allMenus) {
+      log(chalk.gray(`    - "${menu.title}" (handle: ${menu.handle}) [${menu.id}]`), 1);
+    }
+
     const configuredHandles = menusConfig.menus.map(m => m.handle.toLowerCase());
 
-    // Find menus that match our configured handles (duplicates to delete)
-    const menusToDelete = allMenus.filter(m =>
+    // Find menus that match our configured handles
+    const menusToUpdate = allMenus.filter(m =>
       configuredHandles.includes(m.handle.toLowerCase())
     );
 
-    // Filter out default menus (main-menu, footer, etc.) - Shopify won't let us delete them
-    // We'll just UPDATE these instead
-    const defaultMenuHandles = ['main-menu', 'footer', 'footer-menu'];
-    const deletableMenus = menusToDelete.filter(m =>
-      !defaultMenuHandles.includes(m.handle.toLowerCase())
-    );
-    const defaultMenus = menusToDelete.filter(m =>
-      defaultMenuHandles.includes(m.handle.toLowerCase())
-    );
-
-    if (defaultMenus.length > 0) {
-      log(chalk.gray(`  Found ${defaultMenus.length} default menu(s) to UPDATE (cannot delete):`), 1);
-      for (const menu of defaultMenus) {
-        log(chalk.gray(`    - ${menu.handle} (will update)`), 1);
-      }
-    }
-
-    if (deletableMenus.length > 0) {
-      log(chalk.yellow(`  Found ${deletableMenus.length} menu(s) to delete and recreate:`), 1);
-      for (const menu of deletableMenus) {
-        log(chalk.gray(`    - ${menu.handle} (${menu.title}) [${menu.id}]`), 1);
-      }
-
-      if (applyChanges) {
-        log('Deleting old menus...', 1);
-        for (const menu of deletableMenus) {
-          const result = await deleteMenu(menu.id);
-          if (result.success) {
-            log(chalk.green(`    ✓ Deleted: ${menu.handle}`), 1);
-          } else {
-            log(chalk.red(`    ✗ Failed to delete ${menu.handle}: ${result.error}`), 1);
+    if (menusToUpdate.length > 0) {
+      log(chalk.yellow(`  Will update ${menusToUpdate.length} menu(s):`), 1);
+      for (const menu of menusToUpdate) {
+        // Get full menu details to show current state
+        const fullMenu = await getMenuByHandle(menu.handle);
+        const itemCount = fullMenu ? fullMenu.items.length : 0;
+        log(chalk.gray(`    - ${menu.handle}: currently has ${itemCount} top-level items`), 1);
+        if (fullMenu && verbose) {
+          for (const item of fullMenu.items.slice(0, 5)) {
+            log(chalk.gray(`      • ${item.title} (${item.type})`), 1);
+          }
+          if (fullMenu.items.length > 5) {
+            log(chalk.gray(`      ... and ${fullMenu.items.length - 5} more`), 1);
           }
         }
-      } else {
-        log(chalk.gray('  (Dry run - menus would be deleted and recreated)'), 1);
       }
-    } else if (menusToDelete.length === 0) {
-      log(chalk.gray('  No existing menus to cleanup'), 1);
     }
 
     log('Planning menu sync...', 1);
@@ -451,6 +434,26 @@ async function main() {
         log(chalk.red(`  Errors: ${results.errors.length}`), 1);
         for (const err of results.errors) {
           log(chalk.red(`    ✗ ${err.handle}: ${err.error}`), 1);
+        }
+      }
+
+      // VERIFICATION: Show what the menu looks like now
+      if (results.updated.length > 0 || results.created.length > 0) {
+        log(chalk.cyan('\n  Verifying menu update...'), 1);
+        for (const handle of [...results.updated, ...results.created]) {
+          const verifyMenu = await getMenuByHandle(handle);
+          if (verifyMenu) {
+            log(chalk.green(`  ✓ ${handle} now has ${verifyMenu.items.length} top-level items:`), 1);
+            for (const item of verifyMenu.items.slice(0, 8)) {
+              const hasChildren = item.items && item.items.length > 0 ? ` (${item.items.length} children)` : '';
+              log(chalk.gray(`      • ${item.title}${hasChildren}`), 1);
+            }
+            if (verifyMenu.items.length > 8) {
+              log(chalk.gray(`      ... and ${verifyMenu.items.length - 8} more top-level items`), 1);
+            }
+          } else {
+            log(chalk.red(`  ✗ Could not verify ${handle} - menu not found after update`), 1);
+          }
         }
       }
 
