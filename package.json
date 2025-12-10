@@ -24,6 +24,9 @@
     "ai:optimize-menu": "npx tsx src/cli/ai-assistant.ts optimize-menu",
     "ai:suggest-tags": "npx tsx src/cli/ai-assistant.ts suggest-tags",
     "ai:ask": "npx tsx src/cli/ai-assistant.ts ask",
+    "auto": "npx tsx src/cli/auto-optimize.ts --config oilslick",
+    "auto:preview": "npx tsx src/cli/auto-optimize.ts --config oilslick --verbose",
+    "auto:deploy": "npx tsx src/cli/auto-optimize.ts --config oilslick --apply --publish --verbose",
     "test": "jest"
   },
   "repository": {
