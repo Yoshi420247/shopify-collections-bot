@@ -56,6 +56,35 @@ const GET_COLLECTION_BY_ID = `
   }
 `;
 
+const GET_ALL_COLLECTIONS = `
+  query GetAllCollections($first: Int!, $after: String) {
+    collections(first: $first, after: $after) {
+      edges {
+        cursor
+        node {
+          id
+          handle
+          title
+          description
+          descriptionHtml
+          sortOrder
+          productsCount {
+            count
+          }
+          seo {
+            title
+            description
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`;
+
 const CREATE_COLLECTION = `
   mutation CollectionCreate($input: CollectionInput!) {
     collectionCreate(input: $input) {
@@ -201,6 +230,73 @@ export async function getCollectionById(id: string): Promise<ShopifyCollection |
   );
 
   return data.collection;
+}
+
+export interface CollectionListItem {
+  id: string;
+  handle: string;
+  title: string;
+  description: string;
+  productsCount: number;
+  seo: {
+    title: string;
+    description: string;
+  } | null;
+}
+
+interface GetAllCollectionsResponse {
+  collections: {
+    edges: Array<{
+      cursor: string;
+      node: {
+        id: string;
+        handle: string;
+        title: string;
+        description: string;
+        productsCount: { count: number };
+        seo: { title: string; description: string } | null;
+      };
+    }>;
+    pageInfo: {
+      hasNextPage: boolean;
+      endCursor: string;
+    };
+  };
+}
+
+/**
+ * Get all collections with pagination
+ */
+export async function getAllCollections(limit: number = 250): Promise<CollectionListItem[]> {
+  const collections: CollectionListItem[] = [];
+  let hasNextPage = true;
+  let cursor: string | null = null;
+
+  while (hasNextPage && collections.length < limit) {
+    const batchSize = Math.min(50, limit - collections.length);
+
+    const data: GetAllCollectionsResponse = await shopifyAdminRequest<GetAllCollectionsResponse>(
+      GET_ALL_COLLECTIONS,
+      { first: batchSize, after: cursor },
+      'GetAllCollections'
+    );
+
+    for (const edge of data.collections.edges) {
+      collections.push({
+        id: edge.node.id,
+        handle: edge.node.handle,
+        title: edge.node.title,
+        description: edge.node.description || '',
+        productsCount: edge.node.productsCount?.count || 0,
+        seo: edge.node.seo
+      });
+    }
+
+    hasNextPage = data.collections.pageInfo.hasNextPage;
+    cursor = data.collections.pageInfo.endCursor;
+  }
+
+  return collections;
 }
 
 /**

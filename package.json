@@ -17,6 +17,13 @@
     "wyn:seo-safe-sync": "npx tsx src/cli/wyn-seo-safe-sync.ts",
     "oilslick:preview": "npx tsx src/cli/wyn-seo-safe-sync.ts --config oilslick",
     "oilslick:deploy": "npx tsx src/cli/wyn-seo-safe-sync.ts --config oilslick --apply --publish",
+    "ai": "npx tsx src/cli/ai-assistant.ts",
+    "ai:suggest-collections": "npx tsx src/cli/ai-assistant.ts suggest-collections",
+    "ai:seo": "npx tsx src/cli/ai-assistant.ts generate-seo",
+    "ai:audit-seo": "npx tsx src/cli/ai-assistant.ts audit-seo",
+    "ai:optimize-menu": "npx tsx src/cli/ai-assistant.ts optimize-menu",
+    "ai:suggest-tags": "npx tsx src/cli/ai-assistant.ts suggest-tags",
+    "ai:ask": "npx tsx src/cli/ai-assistant.ts ask",
     "test": "jest"
   },
   "repository": {
