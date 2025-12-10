@@ -10,6 +10,30 @@ vendor: "Oil Slick"
 
 collections:
   # ===========================================
+  # SHOP ALL - ENTIRE CATALOG
+  # ===========================================
+
+  - key: all
+    title: "All Products"
+    handle: "all"
+    group: "parent"
+    description: "Shop our complete collection of extraction supplies, cannabis packaging, and smoke shop products."
+    type: "SMART"
+    sort_order: "BEST_SELLING"
+    smart_rules:
+      appliedDisjunctively: true
+      conditions:
+        - field: "VENDOR"
+          relation: "EQUALS"
+          value: "Oil Slick"
+        - field: "VENDOR"
+          relation: "EQUALS"
+          value: "What You Need"
+    vendor_filter:
+      enabled: false
+    exclude_conditions: []
+
+  # ===========================================
   # PARENT COLLECTION - EXTRACTION & PACKAGING
   # ===========================================
 
