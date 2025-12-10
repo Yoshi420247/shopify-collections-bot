@@ -11,13 +11,32 @@
 # - Mega menu dropdowns for rich navigation
 # - Logical grouping by customer intent
 # - Mobile-responsive hierarchy
+#
+# NOTE: We update BOTH main-menu AND online-headshop because
+# different themes may use different menu handles.
 
 version: "1.0"
 
+# Menus to DELETE (cleanup duplicates from failed syncs)
+cleanup_menus:
+  - "main-menu-1"
+  - "main-menu-2"
+  - "main-menu-3"
+  - "main-menu-4"
+  - "main-menu-5"
+  - "main-menu-6"
+  - "main-menu-7"
+  - "main-menu-8"
+  - "main-menu-9"
+  - "main-menu-10"
+  - "main-menu-11"
+  - "main-menu-12"
+
 menus:
+  # Primary header menu (default Shopify)
   - handle: "main-menu"
     title: "Main menu"
-    items:
+    items: &main_menu_items
       # =========================================
       # SHOP ALL - Quick access to entire catalog
       # =========================================
@@ -191,3 +210,8 @@ menus:
           - title: "Travel Friendly"
             type: "COLLECTION"
             target_collection_handle: "travel-friendly"
+
+  # Alternative header menu (used by some themes)
+  - handle: "online-headshop"
+    title: "Online Headshop"
+    items: *main_menu_items

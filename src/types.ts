@@ -95,6 +95,7 @@ export interface MenuConfigEntry {
 export interface MenusConfig {
   version: string;
   menus: MenuConfigEntry[];
+  cleanup_menus?: string[];  // Handles of menus to delete (duplicates/old menus)
 }
 
 // ===========================================
