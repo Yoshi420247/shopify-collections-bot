@@ -372,6 +372,30 @@ async function main() {
 
     const configuredHandles = menusConfig.menus.map(m => m.handle.toLowerCase());
 
+    // CLEANUP: Delete duplicate/old menus specified in config
+    if (menusConfig.cleanup_menus && menusConfig.cleanup_menus.length > 0) {
+      const menusToCleanup = allMenus.filter(m =>
+        menusConfig.cleanup_menus!.some(h => h.toLowerCase() === m.handle.toLowerCase())
+      );
+      if (menusToCleanup.length > 0) {
+        log(chalk.yellow(`  Cleaning up ${menusToCleanup.length} duplicate menus...`), 1);
+        if (applyChanges) {
+          for (const menuToDelete of menusToCleanup) {
+            const result = await deleteMenu(menuToDelete.id);
+            if (result.success) {
+              log(chalk.green(`    ✓ Deleted: ${menuToDelete.handle}`), 1);
+            } else {
+              log(chalk.red(`    ✗ Failed to delete ${menuToDelete.handle}: ${result.error}`), 1);
+            }
+          }
+        } else {
+          for (const m of menusToCleanup) {
+            log(chalk.gray(`    - Would delete: ${m.handle}`), 1);
+          }
+        }
+      }
+    }
+
     // Find menus that match our configured handles
     const menusToUpdate = allMenus.filter(m =>
       configuredHandles.includes(m.handle.toLowerCase())
