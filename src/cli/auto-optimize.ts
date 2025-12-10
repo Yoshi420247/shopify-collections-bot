@@ -372,15 +372,32 @@ async function main() {
       configuredHandles.includes(m.handle.toLowerCase())
     );
 
-    if (menusToDelete.length > 0) {
-      log(chalk.yellow(`  Found ${menusToDelete.length} existing menu(s) to replace:`), 1);
-      for (const menu of menusToDelete) {
+    // Filter out default menus (main-menu, footer, etc.) - Shopify won't let us delete them
+    // We'll just UPDATE these instead
+    const defaultMenuHandles = ['main-menu', 'footer', 'footer-menu'];
+    const deletableMenus = menusToDelete.filter(m =>
+      !defaultMenuHandles.includes(m.handle.toLowerCase())
+    );
+    const defaultMenus = menusToDelete.filter(m =>
+      defaultMenuHandles.includes(m.handle.toLowerCase())
+    );
+
+    if (defaultMenus.length > 0) {
+      log(chalk.gray(`  Found ${defaultMenus.length} default menu(s) to UPDATE (cannot delete):`), 1);
+      for (const menu of defaultMenus) {
+        log(chalk.gray(`    - ${menu.handle} (will update)`), 1);
+      }
+    }
+
+    if (deletableMenus.length > 0) {
+      log(chalk.yellow(`  Found ${deletableMenus.length} menu(s) to delete and recreate:`), 1);
+      for (const menu of deletableMenus) {
         log(chalk.gray(`    - ${menu.handle} (${menu.title}) [${menu.id}]`), 1);
       }
 
       if (applyChanges) {
         log('Deleting old menus...', 1);
-        for (const menu of menusToDelete) {
+        for (const menu of deletableMenus) {
           const result = await deleteMenu(menu.id);
           if (result.success) {
             log(chalk.green(`    ✓ Deleted: ${menu.handle}`), 1);
@@ -391,7 +408,7 @@ async function main() {
       } else {
         log(chalk.gray('  (Dry run - menus would be deleted and recreated)'), 1);
       }
-    } else {
+    } else if (menusToDelete.length === 0) {
       log(chalk.gray('  No existing menus to cleanup'), 1);
     }
 
@@ -432,6 +449,9 @@ async function main() {
 
       if (results.errors.length > 0) {
         log(chalk.red(`  Errors: ${results.errors.length}`), 1);
+        for (const err of results.errors) {
+          log(chalk.red(`    ✗ ${err.handle}: ${err.error}`), 1);
+        }
       }
 
       addResult('Menus Sync', 'success',
