@@ -49,7 +49,6 @@ const GET_MENUS = `
           id
           handle
           title
-          itemsCount
         }
       }
     }
@@ -154,7 +153,7 @@ export async function getMenuByHandle(handle: string): Promise<ShopifyMenu | nul
 /**
  * Get all menus
  */
-export async function getMenus(first: number = 50): Promise<Array<{ id: string; handle: string; title: string; itemsCount: number }>> {
+export async function getMenus(first: number = 50): Promise<Array<{ id: string; handle: string; title: string }>> {
   interface Response {
     menus: {
       edges: Array<{
@@ -162,7 +161,6 @@ export async function getMenus(first: number = 50): Promise<Array<{ id: string; 
           id: string;
           handle: string;
           title: string;
-          itemsCount: number;
         };
       }>;
     };
